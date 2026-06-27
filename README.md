@@ -42,8 +42,38 @@ Recruiters orchestrate human capital using a unified hacker-styled dashboard fea
 
 ---
 
-## 🚀 Quick Launch Protocols
+# (only for zip file, prebuilt file only needs running builder.py)
 
-### 1. Ingest System Dependencies
+## Make a virtual environment to avoid dependencies conflict.
+
+## Quick Start (3 steps)
+
+### 1. Install Python dependencies
+
 ```bash
 pip install -r requirements.txt
+```
+
+### 2. Configure your API keys
+
+Edit the `.env` file and fill in:
+
+| Key | Where to get it |
+|-----|----------------|
+| `GEMINI_API_KEY` | https://aistudio.google.com/app/apikey (free) |
+| `GOOGLE_CLIENT_ID` | Google Cloud Console → OAuth 2.0 Client IDs |
+| `GOOGLE_CLIENT_SECRET` | Same as above |
+| `NH_SECRET_KEY` | Any long random string |
+
+> **Google OAuth setup:** In Google Cloud Console, add this to *Authorized redirect URIs*:
+> `http://localhost:5000/login/google/callback`
+
+### 3. Run the server
+
+```bash
+python builder.py
+```
+
+Open your browser at **http://localhost:5000**
+
+---
