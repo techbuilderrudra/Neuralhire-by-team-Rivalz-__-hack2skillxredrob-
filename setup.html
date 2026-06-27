@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuralHire Setup Wizard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+    :root {
+      color-scheme: dark;
+      --bg: #02060e;
+      --panel: rgba(6, 20, 42, 0.88);
+      --panel-soft: rgba(8, 28, 62, 0.92);
+      --blue: #00d4ff;
+      --blue-soft: rgba(0, 212, 255, 0.12);
+      --blue-deep: #0688b7;
+      --cyan: #63f2ff;
+      --text: #d8e6ff;
+      --muted: #7ea7c7;
+      --border: rgba(0, 212, 255, 0.18);
+      --glow: 0 0 30px rgba(0, 212, 255, 0.25);
+      --shadow: 0 40px 120px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; overflow: hidden; font-family: 'Share Tech Mono', monospace; background: radial-gradient(circle at top, rgba(0,212,255,0.12), transparent 28%), radial-gradient(circle at 20% 40%, rgba(77,200,255,0.15), transparent 22%), #02060e; color: var(--text); }
+    body { display: flex; align-items: center; justify-content: center; padding: 20px; }
+
+    .stars, .stars::after {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: transparent;
+      pointer-events: none;
+    }
+
+    .stars {
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.25) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,0.14) 1px, transparent 1px),
+        radial-gradient(circle, rgba(0,212,255,0.18) 1px, transparent 1px);
+      background-size: 220px 220px, 120px 120px, 40px 40px;
+      animation: drift 40s linear infinite;
+    }
+
+    .stars::after {
+      content: '';
+      background-image: radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px), radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1px);
+      background-size: 80px 80px, 160px 160px;
+      opacity: 0.6;
+      animation: driftReverse 60s linear infinite;
+    }
+
+    @keyframes drift { from { transform: translate(0,0); } to { transform: translate(-120px,-80px); } }
+    @keyframes driftReverse { from { transform: translate(0,0); } to { transform: translate(80px,120px); } }
+
+    .wizard {
+      position: relative;
+      width: min(980px, calc(100% - 40px));
+      background: linear-gradient(180deg, rgba(10, 24, 46, 0.98), rgba(8, 18, 34, 0.95));
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+    }
+
+    .wizard::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(45deg, transparent 15%, rgba(0,212,255,0.08) 30%, transparent 55%, rgba(0,212,255,0.04) 80%);
+      opacity: 0.75;
+    }
+
+    .wizard-header {
+      padding: 30px 36px 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: start;
+      z-index: 1;
+    }
+
+    .brand {
+      display: grid;
+      gap: 12px;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: clamp(2rem, 3vw, 3.5rem);
+      letter-spacing: 0.35rem;
+      color: #9fe8ff;
+      text-transform: uppercase;
+      text-shadow: 0 0 30px rgba(0,212,255,0.35);
+    }
+
+    .brand-subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      letter-spacing: 0.25rem;
+      text-transform: uppercase;
+    }
+
+    .hdr-chip {
+      align-self: end;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,212,255,0.28);
+      background: rgba(0,212,255,0.04);
+      color: var(--cyan);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.24rem;
+      box-shadow: 0 0 20px rgba(0,212,255,0.08);
+    }
+
+    .wizard-body {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      padding: 0 36px 36px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .panel {
+      background: rgba(8, 20, 42, 0.9);
+      border: 1px solid rgba(0,212,255,0.14);
+      border-radius: 22px;
+      padding: 28px;
+      min-height: 540px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      letter-spacing: 0.18rem;
+      color: #d2efff;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .progress-shell {
+      width: 100%;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.15);
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0,212,255,0.08);
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(0,212,255,1), rgba(0,156,255,0.85));
+      box-shadow: 0 0 18px rgba(0,212,255,0.45);
+      border-radius: 999px;
+      transition: width 0.9s ease;
+      position: relative;
+    }
+
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.5), transparent 25%);
+      opacity: 0.45;
+    }
+
+    .status-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .status-step {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: center;
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: rgba(3, 11, 22, 0.78);
+      border: 1px solid rgba(255,255,255,0.04);
+      transition: transform 0.35s ease, border-color 0.35s ease, background 0.35s ease;
+    }
+
+    .status-step.active {
+      border-color: rgba(0,212,255,0.35);
+      background: rgba(0, 40, 76, 0.95);
+      transform: translateX(6px);
+      box-shadow: 0 0 30px rgba(0,212,255,0.12);
+    }
+
+    .status-step .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(0,212,255,0.18);
+      border: 1px solid rgba(0,212,255,0.4);
+      position: relative;
+      box-shadow: inset 0 0 8px rgba(0,212,255,0.5);
+    }
+
+    .status-step.active .dot,
+    .status-step.complete .dot {
+      background: linear-gradient(135deg, #00d4ff, #85e4ff);
+      box-shadow: 0 0 20px rgba(0,212,255,0.45);
+    }
+
+    .status-step span {
+      display: block;
+      color: var(--text);
+      font-size: 0.95rem;
+      letter-spacing: 0.05rem;
+    }
+
+    .status-step small {
+      display: block;
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-top: 4px;
+      letter-spacing: 0.08rem;
+    }
+
+    .terminal {
+      background: rgba(2, 12, 22, 0.95);
+      border: 1px solid rgba(0,212,255,0.16);
+      border-radius: 18px;
+      overflow: hidden;
+      flex: 1;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .terminal-header {
+      padding: 16px 18px;
+      background: rgba(0,0,0,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(0,212,255,0.08);
+    }
+
+    .terminal-header .tabs {
+      display: flex; gap: 8px;
+    }
+
+    .terminal-header .tab {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      box-shadow: inset 0 0 4px rgba(0,0,0,0.25);
+    }
+
+    .terminal-header .tab.active { background: rgba(0,212,255,0.9); }
+
+    .terminal-header .label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.2rem;
+    }
+
+    .terminal-body {
+      padding: 22px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .log-lines {
+      display: grid;
+      gap: 10px;
+      grid-auto-rows: minmax(16px, auto);
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .log-lines p {
+      margin: 0;
+      color: rgba(239, 251, 255, 0.88);
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    .log-lines p span {
+      color: rgba(120, 215, 255, 0.92);
+    }
+
+    .log-lines p.completed {
+      color: rgba(0, 255, 220, 0.9);
+    }
+
+    .terminal-glow {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 80% 10%, rgba(0,212,255,0.14), transparent 20%),
+                  radial-gradient(circle at 20% 90%, rgba(0,212,255,0.10), transparent 16%);
+    }
+
+    .wizard-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 36px 30px;
+      gap: 16px;
+      z-index: 1;
+    }
+
+    .wizard-actions .note {
+      color: var(--muted);
+      font-size: 0.86rem;
+      letter-spacing: 0.09rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,212,255,0.24);
+      background: linear-gradient(135deg, rgba(0,212,255,0.12), rgba(0, 140, 224, 0.22));
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.18rem;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 0 30px rgba(0,212,255,0.1);
+      overflow: hidden;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, rgba(0,212,255,0.24), rgba(0, 173, 255, 0.30));
+      box-shadow: 0 0 32px rgba(0,212,255,0.22);
+    }
+
+    .button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .button strong {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .button strong::after {
+      content: '➜';
+      font-size: 1.05rem;
+      opacity: 0.75;
+      transition: transform 0.25s ease;
+    }
+
+    .button:hover strong::after { transform: translateX(4px); }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(0,212,255,0.06);
+      border: 1px solid rgba(0,212,255,0.14);
+      color: var(--cyan);
+      font-size: 0.8rem;
+      letter-spacing: 0.12rem;
+      text-transform: uppercase;
+    }
+
+    .status-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 18px rgba(0,212,255,0.55);
+    }
+
+    .launch-info {
+      display: grid;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .launch-info small {
+      color: var(--muted);
+      letter-spacing: 0.1rem;
+      font-size: 0.82rem;
+    }
+
+    .launch-info .badge {
+      display: inline-flex;
+      padding: 8px 12px;
+      background: rgba(0,212,255,0.06);
+      border: 1px solid rgba(0,212,255,0.14);
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 0.76rem;
+      letter-spacing: 0.16rem;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 1100px) {
+      .wizard-body { grid-template-columns: 1fr; }
+      .wizard-actions { flex-direction: column; align-items: stretch; }
+    }
+
+    @media (max-width: 720px) {
+      .wizard { border-radius: 20px; }
+      .wizard-header { padding: 24px 20px 14px; }
+      .wizard-body { padding: 0 20px 28px; }
+      .panel { padding: 22px; }
+      .wizard-actions { padding: 0 20px 24px; }
+      .button { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars"></div>
+  <div class="wizard">
+    <div class="wizard-header">
+      <div class="brand">
+        <h1 class="brand-title">NeuralHire Setup</h1>
+        <p class="brand-subtitle">Quantum preparator • System initialization sequence</p>
+      </div>
+      <div class="hdr-chip">zero-console launch</div>
+    </div>
+
+    <div class="wizard-body">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Deployment sequence</h2>
+          <p>Observe the blue-lit initialization matrix as the setup wizard prepares your recruitment engine in real time.</p>
+        </div>
+
+        <div class="progress-shell">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="status-badge" id="progressLabel">Preparing neural launch...</div>
+
+        <div class="status-list" id="stepList">
+          <div class="status-step" data-step="1">
+            <div class="dot"></div>
+            <div>
+              <span>Step 1 • Core verification</span>
+              <small>Checking local modules, environment and system integrity.</small>
+            </div>
+          </div>
+          <div class="status-step" data-step="2">
+            <div class="dot"></div>
+            <div>
+              <span>Step 2 • Backend activation</span>
+              <small>Warming up server processes and hidden runtime threads.</small>
+            </div>
+          </div>
+          <div class="status-step" data-step="3">
+            <div class="dot"></div>
+            <div>
+              <span>Step 3 • UI conduit build</span>
+              <small>Constructing the blue holographic interface and immersive transitions.</small>
+            </div>
+          </div>
+          <div class="status-step" data-step="4">
+            <div class="dot"></div>
+            <div>
+              <span>Step 4 • Data handshake</span>
+              <small>Validating candidate pipeline assets and AI readiness.</small>
+            </div>
+          </div>
+          <div class="status-step" data-step="5">
+            <div class="dot"></div>
+            <div>
+              <span>Step 5 • Launch readiness</span>
+              <small>Finalizing launch protocols, stable blue matrix is greenlit.</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel terminal">
+        <div class="terminal-header">
+          <div class="tabs">
+            <span class="tab active"></span>
+            <span class="tab"></span>
+            <span class="tab"></span>
+          </div>
+          <div class="label">Local Setup Console</div>
+        </div>
+        <div class="terminal-body">
+          <div class="terminal-glow"></div>
+          <div class="log-lines" id="logLines"></div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="wizard-actions">
+      <div class="launch-info">
+        <p class="note">The setup wizard runs in browser mode and avoids opening a command prompt window.</p>
+        <small>Once initialization completes, click the launch button to open NeuralHire dashboard directly.</small>
+      </div>
+      <button class="button" id="launchButton" disabled><strong>Launch NeuralHire</strong></button>
+    </div>
+  </div>
+
+  <script>
+    const progressBar = document.getElementById('progressBar');
+    const progressLabel = document.getElementById('progressLabel');
+    const logLines = document.getElementById('logLines');
+    const launchButton = document.getElementById('launchButton');
+    const steps = Array.from(document.querySelectorAll('.status-step'));
+
+    const actions = [
+      { label: 'Initializing quantum kernel', detail: 'Verifying environment variables and GPU-ready shaders.', duration: 1200 },
+      { label: 'Loading neural bridge', detail: 'Starting Flask backend hidden process in background.', duration: 1400 },
+      { label: 'Mapping holographic UI', detail: 'Building blue theme, transition nodes and animated overlays.', duration: 1300 },
+      { label: 'Syncing recruitment matrix', detail: 'Validating candidate index and AI metadata engines.', duration: 1500 },
+      { label: 'Calibrating launch vector', detail: 'Final checkpoint complete. Ready to open the dashboard.', duration: 1300 },
+    ];
+
+    const logTemplates = [
+      'BOOT >> [OK] %s',
+      'SYSTEM >> %s',
+      'NEURAL BUS >> %s',
+      'MODULE >> %s',
+      'SOCKET >> %s',
+    ];
+
+    function appendLog(message, isComplete = false) {
+      const p = document.createElement('p');
+      p.textContent = message;
+      if (isComplete) p.classList.add('completed');
+      logLines.appendChild(p);
+      logLines.scrollTop = logLines.scrollHeight;
+    }
+
+    function formatLog(text) {
+      const template = logTemplates[Math.floor(Math.random() * logTemplates.length)];
+      return template.replace('%s', text);
+    }
+
+    function setStep(index) {
+      steps.forEach((step, idx) => {
+        step.classList.toggle('active', idx === index);
+        step.classList.toggle('complete', idx < index);
+      });
+    }
+
+    function updateProgress(value) {
+      progressBar.style.width = `${value}%`;
+    }
+
+    function runSequence(index = 0) {
+      if (index >= actions.length) {
+        progressLabel.textContent = 'Launch sequence ready';
+        appendLog(formatLog('All systems online. Awaiting user confirmation.'), true);
+        launchButton.disabled = false;
+        launchButton.textContent = 'Launch NeuralHire';
+        return;
+      }
+
+      const step = actions[index];
+      setStep(index);
+      progressLabel.textContent = step.label;
+      updateProgress((index / (actions.length - 1)) * 100);
+      appendLog(formatLog(step.detail));
+
+      setTimeout(() => {
+        appendLog(formatLog('Step complete: ' + step.label), true);
+        runSequence(index + 1);
+      }, step.duration);
+    }
+
+    launchButton.addEventListener('click', () => {
+      const url = location.href.replace(/setup\.html.*$/, 'main-app.html');
+      window.open(url, '_blank');
+      launchButton.textContent = 'Dashboard opened';
+    });
+
+    window.addEventListener('load', () => {
+      appendLog(formatLog('Setup wizard engaged. Runtime is console-free.'));
+      appendLog(formatLog('Preparing immersive blue-holo scaffold.'));
+      setTimeout(() => runSequence(0), 600);
+    });
+  </script>
+</body>
+</html>
