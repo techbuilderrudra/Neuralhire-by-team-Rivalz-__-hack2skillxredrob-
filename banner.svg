@@ -1,0 +1,35 @@
+<svg fill="none" viewBox="0 0 800 200" width="100%" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" rx="8" fill="#010409" stroke="#00d4ff" stroke-width="2"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&amp;display=swap');
+    .text {
+      font-family: 'Share Tech Mono', monospace;
+      fill: #00d4ff;
+      font-size: 16px;
+      opacity: 0;
+    }
+    .neon-title {
+      font-size: 32px;
+      fill: #00ff88;
+      font-weight: bold;
+      filter: drop-shadow(0 0 8px #00ff88);
+    }
+    .cursor {
+      fill: #00d4ff;
+      animation: blink 0.8s infinite;
+    }
+    @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+    @keyframes lineShow { to { opacity: 1; } }
+    
+    .l1 { animation: lineShow 0.1s forwards 0.2s; }
+    .l2 { animation: lineShow 0.1s forwards 0.7s; }
+    .l3 { animation: lineShow 0.1s forwards 1.2s; }
+    .l4 { animation: lineShow 0.1s forwards 1.8s; }
+  </style>
+  
+  <text x="30" y="50" class="text neon-title l1">▲ NEURALHIRE // CORE_ENG_INIT</text>
+  <text x="30" y="90" class="text l2">&gt; LOADING GEMINI INTERFACE ENGINE... [ONLINE]</text>
+  <text x="30" y="120" class="text l3">&gt; SYNAPSE PIPELINE CONNECTOR... [READY ON PORT 5000]</text>
+  <text x="30" y="150" class="text l4">&gt; AWAITING RECRUITER UP-LINK PRIVILEGES</text>
+  <rect x="390" y="137" width="10" height="15" class="cursor l4"/>
+</svg>
